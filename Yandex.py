@@ -1,3 +1,9 @@
+# ---------------------------------------------------------------------------------
+# Name: Yandexed link
+# Description: search a question in yandex
+# Author: @kyrowin
+# ---------------------------------------------------------------------------------
+
 from telethon.tl.types import Message  # type: ignore
 
 from .. import loader, utils
@@ -7,25 +13,29 @@ from .. import loader, utils
 class Yandex(loader.Module):
     strings = {
         "name": "Yandex",
-        "Yandex": (
+        "yandex": (
             "<emoji document_id=5300882244842300470>👩‍💻</emoji><b> I yandexed for"
             " you</b>\n"
         ),
         "no_args": "❌ No args",
     }
     strings_ru = {
-        "Yandex": (
+        "yandex": (
             "<emoji document_id=5300882244842300470>👩‍💻</emoji><b> Я заяндексил за"
             " тебя</b>\n"
         ),
         "no_args": "❌ Нет аргументов",
     }
 
+    @loader.command(
+        ru_doc="Заяндексить ссылку",
+        en_doc="Yandexed link",
+    )
     async def yandexcmd(self, message: Message):
         args = utils.get_args_raw(message)
         if not args:
             await utils.answer(message, self.strings("no_args"))
             return
-        g = args.replace(" ", "+")
-        yandex = f"https://yandex.ru/search/?text={g}"
-        await utils.answer(message, self.strings("Yandex") + yandex)
+        y = args.replace(" ", "+")
+        yandex = f"https://yandex.ru/search/?text={y}"
+        await utils.answer(message, self.strings("yandex") + yandex)

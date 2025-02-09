@@ -28,4 +28,4 @@ class Yandex(loader.Module):
             return
         g = args.replace(" ", "+")
         yandex = f"https://yandex.ru/search/?text={g}"
-        await utils.answer(message, self.strings("yandex") + yandex)
+        await utils.answer(message, self.strings("Yandex") + yandex)

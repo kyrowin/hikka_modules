@@ -1,8 +1,4 @@
-# meta title: Управление серверами Pterodactyl
-# meta developer: @your_username
-# meta pic: https://www.hostinger.ru/rukovodstva/wp-content/uploads/sites/8/2021/12/pterodactyl-panel-1.webp
-# meta banner: https://www.hostinger.ru/rukovodstva/wp-content/uploads/sites/8/2021/12/pterodactyl-panel-1.webp
-# requires: aiohttp
+# meta developer: @kyrowin
 
 from hikkatl.types import Message
 from .. import loader, utils
@@ -12,6 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class PterodactylMod(loader.Module):
+    """Управляет вашими серверами через pterodactyl api"""
     strings = {
         "name": "Pterodactyl",
         "cfg_ptero_url": "URL панели Pterodactyl",

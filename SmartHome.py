@@ -5,16 +5,45 @@ from .. import loader, utils
 import logging
 import requests
 import json
+import abc
 
 logger = logging.getLogger(__name__)
 
-__version__ = (1, 0, 0)
+__version__ = (1, 0, 1)
 
 @loader.tds
 class AliceSmartHomeMod(loader.Module):
-    """Данный модуль позволяет управлять вашим умным домом!"""
+    """Module for controlling Yandex Smart Home devices"""
+    
+
+    __metaclass__ = abc.ABCMeta
+    
     strings = {
         "name": "AliceSmartHome",
+        "desc": "This module allows you to control your Yandex Smart Home devices",
+        "no_token": "🚫 API token is not set. Use <code>.fcfg AliceSmartHome token your_token</code>",
+        "token_saved": "🔑 Token successfully saved",
+        "devices_loaded": "✅ Devices loaded successfully",
+        "error": "❌ Error: {}",
+        "no_devices": "🤷‍♂️ No devices found",
+        "controlling": "🛠 Device control",
+        "install_msg": (
+            "🔧 <b>How to get API token?</b>\n\n"
+            "For module work you need to get Yandex API token.\n"
+            "All information is available at:\n"
+            "<a href='https://habr.com/ru/articles/789200/'>Habr instruction</a>\n\n"
+            "After getting token set it with command:\n"
+            "<code>.fcfg AliceSmartHome token your_token</code>"
+        ),
+        "device_toggled": "Device {}",
+        "api_error": "❌ API error: {}",
+        "invalid_response": "Invalid API response",
+        "unknown_error": "Unknown error",
+    }
+
+    strings_ru = {
+        "name": "AliceSmartHome",
+        "desc": "Данный модуль позволяет управлять вашим умным домом Яндекс",
         "no_token": "🚫 Токен API не установлен. Используй <code>.fcfg AliceSmartHome token ваш_токен</code>",
         "token_saved": "🔑 Токен успешно сохранен",
         "devices_loaded": "✅ Устройства загружены",
@@ -23,25 +52,28 @@ class AliceSmartHomeMod(loader.Module):
         "controlling": "🛠 Управление устройствами",
         "install_msg": (
             "🔧 <b>Как получить API токен?</b>\n\n"
-            "Для работы модуля вам необходимо получить токен Яндекс API. "
+            "Для работы модуля вам необходимо получить токен Яндекс API.\n"
             "Вся информация по получению токена доступна по ссылке:\n"
             "<a href='https://habr.com/ru/articles/789200/'>Инструкция на Habr</a>\n\n"
             "После получения токена установите его командой:\n"
             "<code>.fcfg AliceSmartHome token ваш_токен</code>"
         ),
+        "device_toggled": "Устройство {}",
+        "api_error": "❌ Ошибка API: {}",
+        "invalid_response": "Некорректный ответ от API",
+        "unknown_error": "Неизвестная ошибка",
     }
 
     def __init__(self):
         self.config = loader.ModuleConfig(
             "token",
             None,
-            lambda: "Токен API Яндекс (y0_...)",
+            lambda: "Yandex API Token (y0_...)",
         )
         self._message_id = None
 
     async def client_ready(self, client, db):
         self._client = client
-        # Отправляем сообщение с инструкцией при первой загрузке
         if not self.config["token"]:
             await self._client.send_message(
                 self._client.loader.inline.bot_username,
@@ -50,7 +82,7 @@ class AliceSmartHomeMod(loader.Module):
             )
 
     async def smarthomecmd(self, message: Message):
-        """Вызывает сообщение с inline кнопками через которые вы сможете управлять устройствами."""
+        """Show control panel with inline buttons"""
         if not self.config["token"]:
             await utils.answer(message, self.strings("no_token"))
             return
@@ -87,18 +119,20 @@ class AliceSmartHomeMod(loader.Module):
             data = response.json()
             
             if not isinstance(data, dict):
-                raise ValueError("Некорректный ответ от API")
+                raise ValueError(self.strings("invalid_response"))
             
             devices = []
             
             for device in data.get("devices", []):
                 if not isinstance(device, dict):
+                    logger.warning("Invalid device format: %s", device)
                     continue
                 
                 capabilities = []
                 
                 for cap in device.get("capabilities", []):
                     if not isinstance(cap, dict):
+                        logger.warning("Invalid capability format: %s", cap)
                         continue
                         
                     if cap.get("type") == "devices.capabilities.on_off":
@@ -108,6 +142,8 @@ class AliceSmartHomeMod(loader.Module):
                                 "type": "on_off",
                                 "state": state.get("value", False)
                             })
+                        else:
+                            logger.warning("Invalid state format for device %s", device.get("id"))
                 
                 if capabilities and device.get("id") and device.get("name"):
                     devices.append({
@@ -116,17 +152,19 @@ class AliceSmartHomeMod(loader.Module):
                         "type": device.get("type", "unknown"),
                         "capabilities": capabilities,
                     })
+                else:
+                    logger.warning("Device missing required fields: %s", device)
             
-            logger.debug(f"Найдены устройства: {devices}")
+            logger.debug("Found %d devices", len(devices))
             return devices
             
         except requests.exceptions.RequestException as e:
             error_text = e.response.text if hasattr(e, 'response') else str(e)
-            logger.error(f"Ошибка API: {e}\nResponse: {error_text}")
-            raise Exception(f"Ошибка API: {str(e)}")
+            logger.error("API request failed: %s\nResponse: %s", e, error_text)
+            raise Exception(self.strings("api_error").format(str(e)))
         except Exception as e:
-            logger.exception("Неизвестная ошибка при получении устройств")
-            raise Exception(f"Ошибка: {str(e)}")
+            logger.exception("Failed to get devices")
+            raise Exception(self.strings("unknown_error"))
 
     def _generate_markup(self, devices):
         buttons = []
@@ -134,8 +172,10 @@ class AliceSmartHomeMod(loader.Module):
         for device in devices:
             for capability in device["capabilities"]:
                 if capability["type"] == "on_off":
+                    status = "🟢" if capability["state"] else "🔴"
+                    text = f"{status} {device['name']} ({'On' if capability['state'] else 'Off'})"
                     buttons.append([{
-                        "text": f"🟢 {device['name']} (Вкл)" if capability["state"] else f"🔴 {device['name']} (Выкл)",
+                        "text": text,
                         "callback": self._toggle_device,
                         "args": (device["id"], not capability["state"])
                     }])
@@ -178,12 +218,13 @@ class AliceSmartHomeMod(loader.Module):
                     reply_markup=self._generate_markup(devices)
                 )
             
-            await query.answer(f"Устройство {'включено' if new_state else 'выключено'}")
+            status = "enabled" if new_state else "disabled"
+            await query.answer(self.strings("device_toggled").format(status))
             
         except requests.exceptions.RequestException as e:
             error_text = e.response.text if hasattr(e, 'response') else str(e)
-            logger.error(f"Ошибка переключения: {e}\nResponse: {error_text}")
-            await query.answer(f"❌ Ошибка API: {str(e)}")
+            logger.error("Failed to toggle device: %s\nResponse: %s", e, error_text)
+            await query.answer(self.strings("api_error").format(str(e)))
         except Exception as e:
-            logger.exception("Ошибка в обработчике кнопки")
-            await query.answer(f"❌ Ошибка: {str(e)}")
+            logger.exception("Button handler error")
+            await query.answer(self.strings("error").format(str(e)))

@@ -1,3 +1,5 @@
+# meta developer: @mainkyrowin
+
 from deep_translator import GoogleTranslator
 from telethon import events
 from .. import loader, utils

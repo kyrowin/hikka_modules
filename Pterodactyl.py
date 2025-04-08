@@ -11,7 +11,31 @@ logger = logging.getLogger(__name__)
 
 class PterodactylMod(loader.Module):
     """Управляет вашими серверами через pterodactyl api"""
+
     strings = {
+        "name": "Pterodactyl",
+        "cfg_ptero_url": "Pterodactyl panel URL",
+        "cfg_api_key": "Pterodactyl API key",
+        "start": "👋 Welcome to the server control panel!",
+        "server_list": "📋 Server list:\n\n",
+        "server_info": """
+⚙️ Server: {name}
+Status: {emoji} {state}
+
+📊 Statistics:
+CPU: {cpu_current:.1f}%/{cpu_max}%
+RAM: {ram_current:.1f}MB/{ram_max}MB ({ram_percent:.1f}%)
+Disk: {disk_current:.1f}MB/{disk_max}MB ({disk_percent:.1f}%)
+
+🌐 IP: {ip}
+🔌 Port: {port}
+""",
+    "action_started": "Performing {action}...",
+    "action_error": "Command execution error",
+    "data_error": "Error getting server data (Most likely you didn't configure .cfg Pterodactyl)",
+}
+
+    strings_ru = {
         "name": "Pterodactyl",
         "cfg_ptero_url": "URL панели Pterodactyl",
         "cfg_api_key": "API ключ Pterodactyl",

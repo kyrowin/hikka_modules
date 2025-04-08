@@ -70,7 +70,7 @@ class TranslateEnglishChatMod(loader.Module):
     async def client_ready(self, client, db):
         self.client = client
 
-    async def oncmd(self, message):
+    async def translateoncmd(self, message):
         """Включает проверку на новые сообщения"""
         if not self.config["chat_id"]:
             await utils.answer(message, self.strings("no_chat"))
@@ -82,12 +82,12 @@ class TranslateEnglishChatMod(loader.Module):
             self.strings("enabled").format(self.config["chat_id"])
         )
 
-    async def offcmd(self, message):
+    async def translateoffcmd(self, message):
         """Выключает проверку на новые сообщения"""
         self.enabled = False
         await utils.answer(message, self.strings("disabled"))
 
-    async def chatcmd(self, message):
+    async def translatechatcmd(self, message):
         """Показывает айди чата в котором работает модуль"""
         if not self.config["chat_id"]:
             await utils.answer(message, self.strings("no_chat"))

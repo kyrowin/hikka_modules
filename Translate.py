@@ -4,6 +4,8 @@ from deep_translator import GoogleTranslator
 from telethon import events
 from .. import loader, utils
 
+__version__ = (1, 0, 0)
+
 @loader.tds
 class TranslateEnglishChatMod(loader.Module):
     """Переводит сообщения с английского на русский. (Работает по принципу: новое сообщение -> проверка на английскую букву -> если она есть = переводим)"""

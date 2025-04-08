@@ -5,6 +5,8 @@ from .. import loader, utils
 import aiohttp
 import logging
 
+__version__ = (1, 0, 1)
+
 logger = logging.getLogger(__name__)
 
 class PterodactylMod(loader.Module):

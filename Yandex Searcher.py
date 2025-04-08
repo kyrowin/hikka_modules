@@ -4,6 +4,7 @@ from telethon.tl.types import Message  # type: ignore
 
 from .. import loader, utils
 
+__version__ = (1, 0, 0)
 
 @loader.tds
 class Yandex(loader.Module):

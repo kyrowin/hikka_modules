@@ -17,14 +17,14 @@ class Yandex(loader.Module):
             "<emoji document_id=5300882244842300470>👩‍💻</emoji><b> I yandexed for"
             " you</b>\n"
         ),
-        "no_args": "❌ No args",
+        "no_args": "❌ No text to search",
     }
     strings_ru = {
         "yandex": (
             "<emoji document_id=5300882244842300470>👩‍💻</emoji><b> Я заяндексил за"
             " тебя</b>\n"
         ),
-        "no_args": "❌ Нет аргументов",
+        "no_args": "❌ Нет текста для поиска",
     }
 
     @loader.command(

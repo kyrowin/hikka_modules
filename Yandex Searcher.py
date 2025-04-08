@@ -1,8 +1,4 @@
-# ---------------------------------------------------------------------------------
-# Name: Yandexed link
-# Description: search a question in yandex
-# Author: @kyrowin
-# ---------------------------------------------------------------------------------
+# meta developer: @mainkyrowin
 
 from telethon.tl.types import Message  # type: ignore
 

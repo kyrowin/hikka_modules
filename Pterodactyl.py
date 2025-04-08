@@ -29,7 +29,7 @@ RAM: {ram_current:.1f}MB/{ram_max}MB ({ram_percent:.1f}%)
 """,
         "action_started": "Выполняется {action}...",
         "action_error": "Ошибка выполнения команды",
-        "data_error": "Ошибка получения данных сервера",
+        "data_error": "Ошибка получения данных сервера (Скорее всего, вы не указали данные в .cfg Pterodactyl)",
     }
 
     def __init__(self):

@@ -8,6 +8,7 @@ __version__ = (1, 0, 0)
 
 @loader.tds
 class Yandex(loader.Module):
+    """Заяндексить ссылку"""
     strings = {
         "name": "Yandex",
         "yandex": (
@@ -29,6 +30,7 @@ class Yandex(loader.Module):
         en_doc="Yandexed link",
     )
     async def yandexcmd(self, message: Message):
+        """Заяндексить ссылку"""
         args = utils.get_args_raw(message)
         if not args:
             await utils.answer(message, self.strings("no_args"))
